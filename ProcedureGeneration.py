@@ -5,7 +5,7 @@ import copy
 
 
 class BSPTree:
-	def __init__(self, height=50, width=50):
+	def __init__(self, height=30, width=30):
 		self.matrix = Matrix(width, height, homogeneous=True, value=0)
 
 	def splitMatrix(self, matrix, value=0, border=4):
@@ -58,9 +58,9 @@ class BSPTree:
 			self.matrix.glue(o)
 
 	def generate(self):
-		ms = self.split(self.matrix)
-		self.matrixJoiner(self.matrix, ms)
-		self.bordürtschiki(self.matrix)
+		ms = self.split()
+		self.matrixJoiner(ms)
+		self.matrix.bordürtschiki(value="#")
 		return self.matrix
 
 
