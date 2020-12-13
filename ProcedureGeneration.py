@@ -4,9 +4,24 @@ from random import randint, choice, shuffle
 import copy
 
 
-class BSPTree:
-	def __init__(self, height=30, width=30):
-		self.matrix = Matrix(width, height, homogeneous=True, value=0)
+class GenAlgorithm:
+	def __init__(self):
+		pass
+
+	def filter(self, matrix, width, height):
+		for i in range(height):
+			for j in range(width):
+				if matrix[i][j] == "#":
+					matrix[i][j] = 2
+				elif str(matrix[i][j]) in "./^<—+|\\>L?-*:JZxbMc":
+					matrix[i][j] = 1
+				
+		return matrix
+
+
+class BSPTree(GenAlgorithm):
+	def __init__(self):
+		pass
 
 	def splitMatrix(self, matrix, value=0, border=4):
 		ms = []
@@ -32,9 +47,9 @@ class BSPTree:
 
 		return ms
 
-	def split(self, border=4):
-		ms = self.splitMatrix(self.matrix, 0, border)
-		btb = self.matrix.width >= border*2 and self.matrix.height >= border*2
+	def split(self, matrix, border=4):
+		ms = self.splitMatrix(matrix, 0, border)
+		btb = matrix.width >= border*2 and matrix.height >= border*2
 		count = 0
 		if not btb:
 			print("МАЛЕНЬКАЯ МАТРИЦА!!!!!!!!!!!")
@@ -50,22 +65,23 @@ class BSPTree:
 
 		return ms
 
-	def matrixJoiner(self, ml):
+	def matrixJoiner(self, ml, matrix):
 		symbols = "./^<—+|\\>L?-*:JZxbM"
 		for i, o in enumerate(ml):
 			o.fill(symbols[i:i+1])
 			o.bordürtschiki(value="#")
-			self.matrix.glue(o)
+			matrix.glue(o)
 
-	def generate(self):
-		ms = self.split()
-		self.matrixJoiner(ms)
-		self.matrix.bordürtschiki(value="#")
-		return self.matrix
+	def generate(self, height=30, width=30):
+		matrix = Matrix(width, height, homogeneous=True, value=0)
+		ms = self.split(matrix)
+		self.matrixJoiner(ms, matrix)
+		matrix.bordürtschiki(value="#")
+		return self.filter(matrix, width, height)
 
 
 
-class Planning:
+class Planning(GenAlgorithm):
 	def __init__(self):
 		pass
 
@@ -91,6 +107,7 @@ class Planning:
 				if rooms[i].canExpand:
 					canExpand = True
 			matrix.matrixJoiner(rooms)
+			print(matrix)
 		corridors = self.corridorsCreator(rooms, matrix)
 		for i, o in enumerate(corridors):
 			matrix.glue(o)
@@ -105,20 +122,24 @@ class Planning:
 			shuffle(directions)
 			y0, x0 = r.coordinates
 			h, w = r.height, r.width
-			for dir in directions:
+			for dir in r.directions:
 				if dir == "left":
 					exitFlag = False
 					for y in range(y0+1, y0+h-1):
 						for j, x in enumerate(range(x0-1, -1, -1)):
-							if str(matrix[y][x]) in symbols:
+							if x == 0:
+								print("x000000000000!!!!!!!!!")
+							if str(matrix[y][x]) in symbols or x == 0:
+								
 								corridor = Room(j+1, 3, homogeneous=True, value="c", coordinates=[y-1, x+1])
 								corridor.walls(axis="x")
-								print(corridor.coordinates)
-								print(corridor.height, corridor.width)
 								matrix.glue(corridor, allowList)
-								exitFlag = True
-								break
-							elif str(matrix[y][x]) == "c":
+								print(matrix)
+								if x != 0:
+									print(y, x)
+									r2id = self.collisionChecker((y,x), rooms)
+									rooms[r2id].directions.remove("right")
+								r.directions.remove("left")
 								exitFlag = True
 								break
 						if exitFlag:
@@ -127,13 +148,19 @@ class Planning:
 				elif dir == "right":
 					exitFlag = False
 					for y in range(y0+1, y0+h-1):
-						for j, x in enumerate(range(x0+w, matrix.height)):
-							if str(matrix[y][x]) in symbols:
+						for j, x in enumerate(range(x0+w, matrix.width)):
+							if x == matrix.width:
+								print("x==matrix.width!!!!!!!!!!!!")
+							if str(matrix[y][x]) in symbols or x == matrix.width-1:
+								
 								corridor = Room(j+1, 3, homogeneous=True, value="c", coordinates=[y-1, x0+w-1])
 								corridor.walls(axis="x")
-								print(corridor.coordinates)
-								print(corridor.height, corridor.width)
 								matrix.glue(corridor, allowList)
+								if x != matrix.width-1:
+									print(y,x)
+									r2id = self.collisionChecker((y,x), rooms)
+									rooms[r2id].directions.remove("left")
+								r.directions.remove("right")
 								exitFlag = True
 								break
 						if exitFlag:
@@ -143,12 +170,19 @@ class Planning:
 					exitFlag = False
 					for x in range(x0+1, x0+w-1):
 						for j, y in enumerate(range(y0-1, -1, -1)):
-							if str(matrix[y][x]) in symbols:
+							if y == 0:
+								print("y000!!!!!111")
+							if str(matrix[y][x]) in symbols or y == 0:
+								
 								corridor = Room(3, j+1, homogeneous=True, value="c", coordinates=[y+1, x-1])
 								corridor.walls(axis="y")
 								matrix.glue(corridor, allowList)
-								print(corridor.coordinates)
-								print(corridor.height, corridor.width)
+								print(matrix)
+								if y != 0:
+									print(y,x)
+									r2id = self.collisionChecker((y,x), rooms)
+									rooms[r2id].directions.remove("down")
+								r.directions.remove("up")
 								exitFlag = True
 								break
 						if exitFlag:
@@ -158,12 +192,19 @@ class Planning:
 					exitFlag = False
 					for x in range(x0+1, x0+w-1):
 						for j, y in enumerate(range(y0+h, matrix.height)):
-							if str(matrix[y][x]) in symbols:
+							if y == matrix.height:
+								print("y==matrix.height!!!!!!!!!!!")
+							if str(matrix[y][x]) in symbols or y == matrix.height-1:
+								
 								corridor = Room(3, j+1, homogeneous=True, value="c", coordinates=[y0+h-1, x-1])
 								corridor.walls(axis="y")
 								matrix.glue(corridor, allowList)
-								print(corridor.coordinates)
-								print(corridor.height, corridor.width)
+								print(matrix)
+								if y != matrix.height-1:
+									print(y,x)
+									r2id = self.collisionChecker((y,x), rooms)
+									rooms[r2id].directions.remove("up")
+								r.directions.remove("down")
 								exitFlag = True
 								break
 						if exitFlag:
@@ -183,6 +224,18 @@ class Planning:
 					x1 <= x2 + w2 and
 					x1 + w1 >= x2):
 					return True
+
+	def collisionChecker(self, coordinates, rooms):
+		y, x = coordinates
+		for rid, room in enumerate(rooms):
+			y2, x2 = room.coordinates
+			h2, w2 = room.height, room.width
+			if y in (y2, y2+h2-1):
+				if x2 <= x <= x2+w2-1:
+					return rid
+			elif x in (x2, x2+w2-1):
+				if y2 <= y <= y2+h2-1:
+					return rid
 
 	def roomChecker(self, rm, i, rooms, matrix):
 		y1, x1 = rm.coordinates
@@ -214,7 +267,8 @@ class Planning:
 						room.canExpand = False
 						return True
 
-	def filter(self, matrix, width, height):
+
+	'''def filter(self, matrix, width, height):
 		for i in range(height):
 			for j in range(width):
 				if matrix[i][j] == "#":
@@ -222,4 +276,4 @@ class Planning:
 				elif str(matrix[i][j]) in "./^<—+|\\>L?-*:JZxbMc":
 					matrix[i][j] = 1
 				
-		return matrix
+		return matrix'''

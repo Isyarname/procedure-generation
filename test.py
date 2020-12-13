@@ -1,8 +1,9 @@
 import pygame as p
 from matrix_reload import *
-from ProcedureGeneration import Planning
+from ProcedureGeneration import Planning, BSPTree
 
 pl = Planning()
+#bsp = BSPTree()
 width, height = 30, 30
 m = Matrix()
 
@@ -19,6 +20,7 @@ locations = {
 
 def generateDungeon():
 	dungeon = pl.generate()
+	#dungeon = bsp.generate()
 	m = dungeon.body
 	for i in range(width):
 		for j in range(height):

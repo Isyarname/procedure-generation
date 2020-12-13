@@ -27,31 +27,55 @@ class Matrix:
             self.body.extend(ls)
             
 
-    def matrixToString(self):
-        if type(self.body[0]) == int:
-                for i in self.body:
+    def matrixToString(self, caption=True, gaps=True):
+        #создание временной матрицы
+        if caption:
+            tempMatrix = []
+            if type(self.body[0]) != int:
+                tempMatrix.append([])
+                for i in range(len(self.body[0]) + 1):
+                    tempMatrix[0].append(i)
+
+                for i, o in enumerate(self.body):
+                    tempMatrix.append([i+1])
+                    for j, oo in enumerate(self.body[i]):
+                        tempMatrix[i+1].append(oo)
+        else:
+            tempMatrix = self.body
+
+        #нахождение максимальноё длины значения в ячейке
+        if type(tempMatrix[0]) == int:
+                for i in tempMatrix:
                     lenght = len(str(i))
                     if lenght > self.maxValLen:
                         self.maxValLen = lenght
         else:    
-            for i in self.body:
+            for i in tempMatrix:
                 for j in i:
                     lenght = len(str(j))
                     if lenght > self.maxValLen:
                         self.maxValLen = lenght
+
+        #создание строки
         s = ""
-        if type(self.body[0]) != int:
-            for i, o in enumerate(self.body):
+        if type(tempMatrix[0]) != int:
+            for i, o in enumerate(tempMatrix):
                 for j, oo in enumerate(o):
                     val = str(oo)
-                    s += val + " "
+                    s += val
+                    if gaps:
+                        s += " "
                     if len(val) < self.maxValLen:
                         for i in range(self.maxValLen - len(val)):
                             s += " "
                 s += "\n"
         else:
-            for i in self.body:
-                s += str(i) + " "
+            if gaps:
+                for i in tempMatrix:
+                    s += str(i) + " "
+            else:
+                for i in tempMatrix:
+                    s += str(i)
         return s
 
     def transpose(self):
@@ -164,7 +188,7 @@ class Matrix:
         return copy.deepcopy(self.body)
 
     def __str__(self):
-        return self.matrixToString()
+        return self.matrixToString(caption=True, gaps=False)
 
     def __add__(self, other):
         for i,o in enumerate(self.body):
