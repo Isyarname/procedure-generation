@@ -4,13 +4,13 @@ from ProcedureGeneration import Planning, BSPTree
 
 #pl = Planning()
 bsp = BSPTree()
-width, height = 30, 30
+width, height = 50,25
 m = Matrix()
 
 p.init()
-surf = p.display.set_mode((width*20, height*20))
-tileSize = 20
-surfTile = p.Surface((20, 20))
+tileSize = 15
+surf = p.display.set_mode((width*tileSize, height*tileSize))
+surfTile = p.Surface((tileSize, tileSize))
 
 locations = {
 	0:"sprites/void.png",
@@ -19,11 +19,12 @@ locations = {
 }
 
 def generateDungeon():
-	#dungeon = pl.generate()
-	dungeon = bsp.generate()
+	#dungeon = pl.generate(width=width, height=height, numberOfRooms=6, depth=5)
+	dungeon = bsp.generate(width=width, height=height)
 	m = dungeon.body
-	for i in range(width):
-		for j in range(height):
+	print(len(m), len(m[0]))
+	for i in range(height):
+		for j in range(width):
 			tile = p.image.load(locations[m[i][j]])
 			surf.blit(tile, (tileSize*j, tileSize*i))
 generateDungeon()
