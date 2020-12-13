@@ -32,12 +32,12 @@ class Matrix:
         if caption:
             tempMatrix = []
             if type(self.body[0]) != int:
-                tempMatrix.append([])
-                for i in range(len(self.body[0]) + 1):
+                tempMatrix.append([" "])
+                for i in range(len(self.body[0])):
                     tempMatrix[0].append(i)
 
                 for i, o in enumerate(self.body):
-                    tempMatrix.append([i+1])
+                    tempMatrix.append([i])
                     for j, oo in enumerate(self.body[i]):
                         tempMatrix[i+1].append(oo)
         else:

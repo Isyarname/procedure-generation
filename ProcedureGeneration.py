@@ -30,20 +30,20 @@ class BSPTree(GenAlgorithm):
 		if h == w:
 			if randint(0,1) == 1:
 				tx = randint(border, w-border)
-				ms.append(Matrix(width=tx, height=h, homogeneous=True, value=value, coordinates=[y, x]))
-				ms.append(Matrix(width=h-tx, height=h, homogeneous=True, value=value+1, coordinates=[y, x+tx]))
+				ms.append(Room(width=tx, height=h, homogeneous=True, value=value, coordinates=[y, x]))
+				ms.append(Room(width=h-tx, height=h, homogeneous=True, value=value+1, coordinates=[y, x+tx]))
 			else:
 				ty = randint(border, h-border)
-				ms.append(Matrix(width=w, height=ty, homogeneous=True, value=value, coordinates=[y, x]))
-				ms.append(Matrix(width=w, height=h-ty, homogeneous=True, value=value+1, coordinates=[y+ty, x]))
+				ms.append(Room(width=w, height=ty, homogeneous=True, value=value, coordinates=[y, x]))
+				ms.append(Room(width=w, height=h-ty, homogeneous=True, value=value+1, coordinates=[y+ty, x]))
 		elif h > w:
 			ty = randint(border, h-border)
-			ms.append(Matrix(width=w, height=ty, homogeneous=True, value=value, coordinates=[y, x]))
-			ms.append(Matrix(width=w, height=h-ty, homogeneous=True, value=value+1, coordinates=[y+ty, x]))
+			ms.append(Room(width=w, height=ty, homogeneous=True, value=value, coordinates=[y, x]))
+			ms.append(Room(width=w, height=h-ty, homogeneous=True, value=value+1, coordinates=[y+ty, x]))
 		else:
 			tx = randint(border, w-border)
-			ms.append(Matrix(width=tx, height=h, homogeneous=True, value=value, coordinates=[y, x]))
-			ms.append(Matrix(width=w-tx, height=h, homogeneous=True, value=value+1, coordinates=[y, x+tx]))
+			ms.append(Room(width=tx, height=h, homogeneous=True, value=value, coordinates=[y, x]))
+			ms.append(Room(width=w-tx, height=h, homogeneous=True, value=value+1, coordinates=[y, x+tx]))
 
 		return ms
 
@@ -52,7 +52,7 @@ class BSPTree(GenAlgorithm):
 		btb = matrix.width >= border*2 and matrix.height >= border*2
 		count = 0
 		if not btb:
-			print("МАЛЕНЬКАЯ МАТРИЦА!!!!!!!!!!!")
+			print("МАЛЕНЬКАЯ МАТРИЦАААААААААААА!!!!!!!!!!!")
 		while btb:
 			temp = []
 			btb = False
@@ -72,9 +72,31 @@ class BSPTree(GenAlgorithm):
 			o.bordürtschiki(value="#")
 			matrix.glue(o)
 
+	def smallerRooms(self, ms, halfDepth=2):
+		ms2 = []
+		for i in ms:
+			print("i.coordinates[1]:",i.coordinates[1])
+			print("i.width:", i.width)
+			print("i.coordinates[0]:", i.coordinates[0])
+			print("i.height:", i.height)
+			y = randint(i.coordinates[0], i.coordinates[0]+i.height//2 - halfDepth)
+			x = randint(i.coordinates[1], i.coordinates[1]+i.width//2 - halfDepth)
+			x2 = randint(i.coordinates[1]+i.width//2 + halfDepth, i.coordinates[1]+i.width-1)
+			y2 = randint(i.coordinates[0]+i.height//2 + halfDepth, i.coordinates[0]+i.height-1)
+			w = x2 - x
+			h = y2 - y
+			ms2.append(Room(width=w, height=h, homogeneous=True, value=0, coordinates=[y, x]))
+		return ms2
+
 	def generate(self, height=30, width=30):
+		border = 8
 		matrix = Matrix(width, height, homogeneous=True, value=0)
-		ms = self.split(matrix)
+		ms = self.split(matrix,border)
+		self.matrixJoiner(ms, matrix)
+		matrix.bordürtschiki(value="#")
+		#print(matrix)
+		matrix.fill(0)
+		ms = self.smallerRooms(ms, halfDepth=(border-3)//2)
 		self.matrixJoiner(ms, matrix)
 		matrix.bordürtschiki(value="#")
 		return self.filter(matrix, width, height)
@@ -135,10 +157,11 @@ class Planning(GenAlgorithm):
 								corridor.walls(axis="x")
 								matrix.glue(corridor, allowList)
 								print(matrix)
-								if x != 0:
+								if x != 0 and matrix[x-1] != "c":
 									print(y, x)
 									r2id = self.collisionChecker((y,x), rooms)
-									rooms[r2id].directions.remove("right")
+									if r2id != None and "right" in rooms[r2id].directions:
+										rooms[r2id].directions.remove("right")
 								r.directions.remove("left")
 								exitFlag = True
 								break
@@ -156,10 +179,11 @@ class Planning(GenAlgorithm):
 								corridor = Room(j+1, 3, homogeneous=True, value="c", coordinates=[y-1, x0+w-1])
 								corridor.walls(axis="x")
 								matrix.glue(corridor, allowList)
-								if x != matrix.width-1:
+								if x != matrix.width-1 and matrix[x+1] != "c":
 									print(y,x)
 									r2id = self.collisionChecker((y,x), rooms)
-									rooms[r2id].directions.remove("left")
+									if r2id != None and "left" in rooms[r2id].directions:
+										rooms[r2id].directions.remove("left")
 								r.directions.remove("right")
 								exitFlag = True
 								break
@@ -178,10 +202,11 @@ class Planning(GenAlgorithm):
 								corridor.walls(axis="y")
 								matrix.glue(corridor, allowList)
 								print(matrix)
-								if y != 0:
+								if y != 0 and matrix[y-1] != "c":
 									print(y,x)
 									r2id = self.collisionChecker((y,x), rooms)
-									rooms[r2id].directions.remove("down")
+									if r2id != None and "down" in rooms[r2id].directions:
+										rooms[r2id].directions.remove("down")
 								r.directions.remove("up")
 								exitFlag = True
 								break
@@ -200,10 +225,11 @@ class Planning(GenAlgorithm):
 								corridor.walls(axis="y")
 								matrix.glue(corridor, allowList)
 								print(matrix)
-								if y != matrix.height-1:
+								if y != matrix.height-1 and matrix[y+1] != "c":
 									print(y,x)
 									r2id = self.collisionChecker((y,x), rooms)
-									rooms[r2id].directions.remove("up")
+									if r2id != None and "up" in rooms[r2id].directions:
+										rooms[r2id].directions.remove("up")
 								r.directions.remove("down")
 								exitFlag = True
 								break
@@ -230,11 +256,10 @@ class Planning(GenAlgorithm):
 		for rid, room in enumerate(rooms):
 			y2, x2 = room.coordinates
 			h2, w2 = room.height, room.width
-			if y in (y2, y2+h2-1):
+			if y2 <= y <= y2+h2-1:
+				print("yyyyyyy")
 				if x2 <= x <= x2+w2-1:
-					return rid
-			elif x in (x2, x2+w2-1):
-				if y2 <= y <= y2+h2-1:
+					print("yyyyyyy22222")
 					return rid
 
 	def roomChecker(self, rm, i, rooms, matrix):
