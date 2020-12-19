@@ -10,6 +10,7 @@ class Room(Matrix):
 		self.colDir = []
 		self.numberOfOutputs = 0
 		self.directions = ["left", "right", "up", "down"]
+		self.neighbours = []
 
 	def glue(self, m, allowList=["#", 0]):
 		y, x = m.coordinates
