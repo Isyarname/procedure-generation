@@ -17,8 +17,13 @@ class Room(Matrix):
 		h, w = m.height, m.width
 		for i, o in enumerate(m):
 			for j, oo in enumerate(o):
-				if self.body[i+y][j+x] in allowList:
-					self.body[i+y][j+x] = oo
+				try:
+					if self.body[i+y][j+x] in allowList:
+						self.body[i+y][j+x] = oo
+				except IndexError as ie:
+					print("y, x:", y, x)
+					print("index:", i+y, j+x)
+					print(ie)
 
 	def walls(self, axis, value="#"):
 		w = self.width

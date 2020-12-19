@@ -2,8 +2,8 @@ import pygame as p
 from matrix_reload import *
 from ProcedureGeneration import Planning, BSPTree
 
-pl = Planning()
-#bsp = BSPTree()
+#pl = Planning()
+bsp = BSPTree()
 width, height = 50,25
 m = Matrix()
 
@@ -18,15 +18,19 @@ locations = {
 	2:"sprites/wall.png"
 }
 
-def generateDungeon():
-	dungeon = pl.generate(width=width, height=height, numberOfRooms=6, depth=5)
-	#dungeon = bsp.generate(width=width, height=height)
-	m = dungeon.body
-	print(len(m), len(m[0]))
+def drawDungeon(m):
 	for i in range(height):
 		for j in range(width):
 			tile = p.image.load(locations[m[i][j]])
 			surf.blit(tile, (tileSize*j, tileSize*i))
+
+def generateDungeon():
+	#dungeon = pl.generate(width=width, height=height, numberOfRooms=6, depth=5, numberOfExits=1)
+	dungeon = bsp.generate(width=width, height=height, numberOfExits=1)
+	m = dungeon.body
+	drawDungeon(m)
+	print(len(m), len(m[0]))
+	
 generateDungeon()
 
 while True:

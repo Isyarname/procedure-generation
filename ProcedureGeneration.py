@@ -27,7 +27,7 @@ class GenAlgorithm:
 				if x2 <= x <= x2+w2-1:
 					return rid
 
-	def corridorsCreator(self, rooms, matrix, numberOfExits=0):
+	def corridorsCreator(self, rooms, matrix, numberOfExits):
 		symbols = "./^<—+|\\>L?-*:JZxbMc"
 		allowList = ["#", 0]
 		exitsCount = 0
@@ -41,21 +41,24 @@ class GenAlgorithm:
 					exitFlag = False
 					for y in range(y0+1, y0+h-1):
 						for j, x in enumerate(range(x0-1, -1, -1)):
-							if str(matrix[y][x]) in symbols or x == 0:
-								if x == 0 and exitsCount < numberOfExits or x != 0:
-									corridor = Room(j+1, 3, homogeneous=True, value="c", coordinates=[y-1, x+1])
-									corridor.walls(axis="x")
-									matrix.glue(corridor, allowList)
-									r.directions.remove("left")
-									exitFlag = True
-								if x != 0 and matrix[y][x-1] != "c":
+							if x == 0 and exitsCount < numberOfExits:
+								exitsCount += 1
+								corridor = Room(j+2, 3, homogeneous=True, value="c", coordinates=[y-1, 0])
+								exitFlag = True
+								print("left 1")
+							elif x != 0 and str(matrix[y][x]) in symbols:
+								print("left 2")
+								if matrix[y][x-1] != "c":
 									r2id = self.collisionChecker((y,x), rooms)
-									if r2id != None:
+									if r2id != None and not r2id in r.neighbours:
+										corridor = Room(j+1, 3, homogeneous=True, value="c", coordinates=[y-1, x+1])
+										exitFlag = True
 										r.neighbours.append(r2id)
-										if "right" in rooms[r2id].directions:
-											rooms[r2id].directions.remove("right")
-								if exitFlag:
-									break
+										rooms[r2id].neighbours.append(i)
+							if exitFlag:
+								corridor.walls(axis="x")
+								matrix.glue(corridor, allowList)
+								break
 						if exitFlag:
 							break
 
@@ -63,21 +66,24 @@ class GenAlgorithm:
 					exitFlag = False
 					for y in range(y0+1, y0+h-1):
 						for j, x in enumerate(range(x0+w, matrix.width)):
-							if str(matrix[y][x]) in symbols or x == matrix.width-1:
-								if x == matrix.width-1 and exitsCount < numberOfExits or x != matrix.width-1:
-									corridor = Room(j+1, 3, homogeneous=True, value="c", coordinates=[y-1, x0+w-1])
-									corridor.walls(axis="x")
-									matrix.glue(corridor, allowList)
-									r.directions.remove("right")
-									exitFlag = True
-								if x != matrix.width-1 and matrix[y][x+1] != "c":
+							if x == matrix.width-1 and exitsCount < numberOfExits:
+								exitsCount += 1
+								corridor = Room(j+2, 3, homogeneous=True, value="c", coordinates=[y-1, x0+w-1])
+								exitFlag = True
+								print("right 1")
+							elif x != matrix.width-1 and str(matrix[y][x]) in symbols:
+								print("right 2")
+								if matrix[y][x+1] != "c":
 									r2id = self.collisionChecker((y,x), rooms)
-									if r2id != None:
+									if r2id != None and not r2id in r.neighbours:
+										corridor = Room(j+1, 3, homogeneous=True, value="c", coordinates=[y-1, x0+w-1])
+										exitFlag = True
 										r.neighbours.append(r2id)
-										if "left" in rooms[r2id].directions:
-											rooms[r2id].directions.remove("left")
-								if exitFlag:
-									break
+										rooms[r2id].neighbours.append(i)
+							if exitFlag:
+								corridor.walls(axis="x")
+								matrix.glue(corridor, allowList)
+								break
 						if exitFlag:
 							break
 
@@ -85,21 +91,24 @@ class GenAlgorithm:
 					exitFlag = False
 					for x in range(x0+1, x0+w-1):
 						for j, y in enumerate(range(y0-1, -1, -1)):
-							if str(matrix[y][x]) in symbols or y == 0:
-								if y == 0 and exitsCount < numberOfExits or y != 0:
-									corridor = Room(3, j+1, homogeneous=True, value="c", coordinates=[y+1, x-1])
-									corridor.walls(axis="y")
-									matrix.glue(corridor, allowList)
-									r.directions.remove("up")
-									exitFlag = True
-								if y != 0 and matrix[y-1][x] != "c":
+							if y == 0 and exitsCount < numberOfExits:
+								exitsCount += 1
+								corridor = Room(3, j+2, homogeneous=True, value="c", coordinates=[0, x-1])
+								exitFlag = True
+								print("up 1")
+							elif y != 0 and str(matrix[y][x]) in symbols:
+								print("up 2")
+								if matrix[y-1][x] != "c":
 									r2id = self.collisionChecker((y,x), rooms)
-									if r2id != None:
+									if r2id != None and not r2id in r.neighbours:
+										corridor = Room(3, j+1, homogeneous=True, value="c", coordinates=[y+1, x-1])
+										exitFlag = True
 										r.neighbours.append(r2id)
-										if "down" in rooms[r2id].directions:
-											rooms[r2id].directions.remove("down")
-								if exitFlag:
-									break
+										rooms[r2id].neighbours.append(i)
+							if exitFlag:
+								corridor.walls(axis="y")
+								matrix.glue(corridor, allowList)
+								break
 						if exitFlag:
 							break
 
@@ -107,21 +116,24 @@ class GenAlgorithm:
 					exitFlag = False
 					for x in range(x0+1, x0+w-1):
 						for j, y in enumerate(range(y0+h, matrix.height)):
-							if str(matrix[y][x]) in symbols or y == matrix.height-1:
-								if y == matrix.height-1 and exitsCount < numberOfExits or y != matrix.height-1:
-									corridor = Room(3, j+1, homogeneous=True, value="c", coordinates=[y0+h-1, x-1])
-									corridor.walls(axis="y")
-									matrix.glue(corridor, allowList)
-									r.directions.remove("down")
-									exitFlag = True
-								if y != matrix.height-1 and matrix[y+1][x] != "c":
+							if y == matrix.height-1 and exitsCount < numberOfExits:
+								exitsCount += 1
+								corridor = Room(3, j+2, homogeneous=True, value="c", coordinates=[y0+h-1, x-1])
+								exitFlag = True
+								print("down 1")
+							elif y != matrix.height-1 and str(matrix[y][x]) in symbols:
+								print("down 2")
+								if matrix[y+1][x] != "c":
 									r2id = self.collisionChecker((y,x), rooms)
-									if r2id != None:
+									if r2id != None and not r2id in r.neighbours:
+										corridor = Room(3, j+1, homogeneous=True, value="c", coordinates=[y0+h-1, x-1])
+										exitFlag = True
 										r.neighbours.append(r2id)
-										if "up" in rooms[r2id].directions:
-											rooms[r2id].directions.remove("up")
-								if exitFlag:
-									break
+										rooms[r2id].neighbours.append(i)
+							if exitFlag:
+								corridor.walls(axis="y")
+								matrix.glue(corridor, allowList)
+								break
 						if exitFlag:
 							break
 				
@@ -191,14 +203,14 @@ class BSPTree(GenAlgorithm):
 			ms2.append(Room(width=w, height=h, homogeneous=True, value=0, coordinates=[y, x]))
 		return ms2
 
-	def generate(self, height=30, width=30):
+	def generate(self, height=30, width=30, numberOfExits=0):
 		border = 8
 		matrix = Room(width, height, homogeneous=True, value=0)
 		rooms = self.split(matrix, border)
 		matrix.fill(0)
 		rooms = self.smallerRooms(rooms, halfDepth=2)
 		matrix.matrixJoiner(rooms)
-		matrix = self.corridorsCreator(rooms, matrix)
+		matrix = self.corridorsCreator(rooms, matrix, numberOfExits)
 		return self.filter(matrix, width, height)
 
 
@@ -207,9 +219,9 @@ class Planning(GenAlgorithm):
 	def __init__(self):
 		pass
 
-	def generate(self, width=30, height=30, numberOfRooms=4, depth=5):
+	def generate(self, width=30, height=30, numberOfRooms=4, depth=5, numberOfExits=0):
 		if (height-1)//2 < depth > (width-1)//2:
-			print("КОМНАТА НЕ ВЛЕЗЕТ В МАТРИЦУУУ!!!!!!!")
+			print("КОМНАТА НЕ ВЛЕЗЕТ В МАТРИЦУУУ!!!!!!111одинодинодин11!")
 		else:
 			matrix = Room(width, height, homogeneous=True, value=0)
 			rooms = self.roomsCreator(width, height, numberOfRooms, depth)
@@ -222,9 +234,9 @@ class Planning(GenAlgorithm):
 						self.roomChecker(rooms[i], i, rooms, matrix)
 					canExpand = canExpand or rooms[i].canExpand
 				matrix.matrixJoiner(rooms)
-				print(matrix)
-			matrix = self.corridorsCreator(rooms, matrix)
-			print(self.filter(matrix, width, height))
+				#print(matrix)
+			matrix = self.corridorsCreator(rooms, matrix, numberOfExits)
+			#print(self.filter(matrix, width, height))
 			return self.filter(matrix, width, height)
 
 	def roomsCreator(self, width, height, numberOfRooms, depth):
