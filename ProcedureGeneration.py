@@ -29,10 +29,10 @@ class GenAlgorithm:
 					print("yyyyyyy22222")
 					return rid
 
-	def corridorsCreator(self, rooms, matrix):
-		#corridors = []
+	def corridorsCreator(self, rooms, matrix, numberOfExits=0):
 		symbols = "./^<—+|\\>L?-*:JZxbMc"
 		allowList = ["#", 0]
+		exitsCount = 0
 		for i, r in enumerate(rooms):
 			directions = ["left", "right", "up", "down"]
 			shuffle(directions)
@@ -43,14 +43,11 @@ class GenAlgorithm:
 					exitFlag = False
 					for y in range(y0+1, y0+h-1):
 						for j, x in enumerate(range(x0-1, -1, -1)):
-							if x == 0:
-								print("x000000000000!!!!!!!!!")
 							if str(matrix[y][x]) in symbols or x == 0:
-								corridor = Room(j+1, 3, homogeneous=True, value="c", coordinates=[y-1, x+1])
-								corridor.walls(axis="x")
-								matrix.glue(corridor, allowList)
-								#print(matrix)
-								print("x", x)
+								if x == 0 and exitsCount < numberOfExits or x != 0:
+									corridor = Room(j+1, 3, homogeneous=True, value="c", coordinates=[y-1, x+1])
+									corridor.walls(axis="x")
+									matrix.glue(corridor, allowList)
 								if x != 0 and matrix[y][x-1] != "c":
 									print(y, x)
 									r2id = self.collisionChecker((y,x), rooms)
@@ -66,15 +63,12 @@ class GenAlgorithm:
 					exitFlag = False
 					for y in range(y0+1, y0+h-1):
 						for j, x in enumerate(range(x0+w, matrix.width)):
-							if x == matrix.width:
-								print("x==matrix.width!!!!!!!!!!!!")
 							if str(matrix[y][x]) in symbols or x == matrix.width-1:
-								corridor = Room(j+1, 3, homogeneous=True, value="c", coordinates=[y-1, x0+w-1])
-								corridor.walls(axis="x")
-								matrix.glue(corridor, allowList)
-								print("x",x)
+								if x == matrix.width-1 and exitsCount < numberOfExits or x != matrix.width-1:
+									corridor = Room(j+1, 3, homogeneous=True, value="c", coordinates=[y-1, x0+w-1])
+									corridor.walls(axis="x")
+									matrix.glue(corridor, allowList)
 								if x != matrix.width-1 and matrix[y][x+1] != "c":
-									#print(y,x)
 									r2id = self.collisionChecker((y,x), rooms)
 									if r2id != None and "left" in rooms[r2id].directions:
 										rooms[r2id].directions.remove("left")
@@ -88,16 +82,12 @@ class GenAlgorithm:
 					exitFlag = False
 					for x in range(x0+1, x0+w-1):
 						for j, y in enumerate(range(y0-1, -1, -1)):
-							if y == 0:
-								print("y000!!!!!111")
 							if str(matrix[y][x]) in symbols or y == 0:
-								corridor = Room(3, j+1, homogeneous=True, value="c", coordinates=[y+1, x-1])
-								corridor.walls(axis="y")
-								matrix.glue(corridor, allowList)
-								#print(matrix)
-								print("y",y)
+								if y == 0 and exitsCount < numberOfExits or y != 0:
+									corridor = Room(3, j+1, homogeneous=True, value="c", coordinates=[y+1, x-1])
+									corridor.walls(axis="y")
+									matrix.glue(corridor, allowList)
 								if y != 0 and matrix[y-1][x] != "c":
-									#print(y,x)
 									r2id = self.collisionChecker((y,x), rooms)
 									if r2id != None and "down" in rooms[r2id].directions:
 										rooms[r2id].directions.remove("down")
@@ -111,16 +101,12 @@ class GenAlgorithm:
 					exitFlag = False
 					for x in range(x0+1, x0+w-1):
 						for j, y in enumerate(range(y0+h, matrix.height)):
-							if y == matrix.height:
-								print("y==matrix.height!!!!!!!!!!!")
 							if str(matrix[y][x]) in symbols or y == matrix.height-1:
-								corridor = Room(3, j+1, homogeneous=True, value="c", coordinates=[y0+h-1, x-1])
-								corridor.walls(axis="y")
-								matrix.glue(corridor, allowList)
-								#print(matrix)
-								print("y",y)
+								if y == matrix.height-1 and exitsCount < numberOfExits or y != matrix.height-1:
+									corridor = Room(3, j+1, homogeneous=True, value="c", coordinates=[y0+h-1, x-1])
+									corridor.walls(axis="y")
+									matrix.glue(corridor, allowList)
 								if y != matrix.height-1 and matrix[y+1][x] != "c":
-									#print(y,x)
 									r2id = self.collisionChecker((y,x), rooms)
 									if r2id != None and "up" in rooms[r2id].directions:
 										rooms[r2id].directions.remove("up")
